@@ -108,40 +108,40 @@ class CMainWindow(QMainWindow):
 
         QMainWindow.__init__(*(self, ) + args)
         self.ui = Ui_MainWindow()
-        self.setupUi()
-        self.printInfo("\n!! Nach dem Verbinden wird 9 Sekunden gewartet !!\n")
-        self.printInfo("Da Arduino Uno bei einem Verbindungsaufbau neu bootet")
+        self.setup_ui()
+        self.print_info("\n!! Nach dem Verbinden wird 9 Sekunden gewartet !!\n")
+        self.print_info("Da Arduino Uno bei einem Verbindungsaufbau neu bootet")
 
-    def setupUi(self):
-        self.ui.setupUi(self)
+    def setup_ui(self):
+        self.ui.setup_ui(self)
         self.ui.baudRateComboBox.addItems(baudRates)
-        self.refreshPorts()
+        self.refresh_ports()
         QObject.connect(self.ui.refreshPortsPushButton,
-                        SIGNAL("clicked()"), self.refreshPorts)
+                        SIGNAL("clicked()"), self.refresh_ports)
         QObject.connect(self.ui.connectPushButton,
                         SIGNAL("clicked()"), self.connect)
         QObject.connect(self.ui.disconnectPushButton,
                         SIGNAL("clicked()"), self.disconnect)
         QObject.connect(self.ui.cmdLineEdit,
-                        SIGNAL("returnPressed()"), self.processLineEntryCmd)
+                        SIGNAL("returnPressed()"), self.process_LineEntryCmd)
         QObject.connect(self.ui.P_HSlider,
-                        SIGNAL("sliderReleased()"), self.processSliderCmd)
+                        SIGNAL("sliderReleased()"), self.process_SliderCmd)
 
         QObject.connect(self.reader,
-                        SIGNAL("newData(QString)"), self.updateLog)
+                        SIGNAL("newData(QString)"), self.update_log)
         QObject.connect(self.reader,
-                        SIGNAL("error(QString)"), self.printError)
+                        SIGNAL("error(QString)"), self.print_error)
         QObject.connect(self.writer,
-                        SIGNAL("error(QString)"), self.printError)
+                        SIGNAL("error(QString)"), self.print_error)
 
-    def getSelectedPort(self):
-        self.printInfo(self.ui.portsComboBox.currentText())
+    def get_selected_port(self):
+        self.print_info(self.ui.portsComboBox.currentText())
         return self.ui.portsComboBox.currentText()
 
-    def getSelectedBaudRate(self):
+    def get_selected_baud_rate(self):
         return self.ui.baudRateComboBox.currentText()
 
-    def refreshPorts(self):
+    def refresh_ports(self):
         print(os.name)  # posix oder nt
         self.ui.portsComboBox.clear()
         self.ui.portsComboBox.addItems(sorted(serialPort))
@@ -149,11 +149,11 @@ class CMainWindow(QMainWindow):
     def connect(self):
         self.disconnect()
         try:
-            self.printInfo("Connecting to %s with %s baud rate." %
-                          (self.getSelectedPort(),
-                           self.getSelectedBaudRate()))
-            self.ser = serial.Serial(str(self.getSelectedPort()),
-                                     int(self.getSelectedBaudRate()),
+            self.print_info("Connecting to %s with %s baud rate." %
+                          (self.get_selected_port(),
+                           self.get_selected_baud_rate()))
+            self.ser = serial.Serial(str(self.get_selected_port()),
+                                     int(self.get_selected_baud_rate()),
                                      xonxoff=True)
             time.sleep(9)
             # arduino Uno bootet nach einer neu aufgebauten Verbindung neu,
@@ -161,72 +161,72 @@ class CMainWindow(QMainWindow):
             # dabei gibt es keine zur Zeit Rueckmeldung
 
             self.ser.flush()
-            self.startReader(self.ser)
-            self.printInfo("Verbindung Erfolgreich.\n")
+            self.start_reader(self.ser)
+            self.print_info("Verbindung Erfolgreich.\n")
         except:
             self.ser = None
-            self.printError("\nVerbindung fehlgeschlagen!")
-            self.printInfo("\nIst der Aduino am richtigen Port angeschlossen?")
+            self.print_error("\nVerbindung fehlgeschlagen!")
+            self.print_info("\nIst der Aduino am richtigen Port angeschlossen?")
 
     def disconnect(self):
-        self.stopThreads()
+        self.stop_threads()
         if self.ser is None:
             return
         try:
             if self.ser.isOpen:
                 self.ser.close()
-                self.printInfo("Disconnected successfully.")
+                self.print_info("Disconnected successfully.")
         except:
-            self.printError("Failed to disconnect!")
+            self.print_error("Failed to disconnect!")
         self.ser = None
 
-    def startReader(self, ser):
+    def start_reader(self, ser):
         self.reader.start(ser)
 
-    def stopThreads(self):
-        self.stopReader()
-        self.stopWriter()
+    def stop_threads(self):
+        self.stop_reader()
+        self.stop_writer()
 
-    def stopReader(self):
+    def stop_reader(self):
         if self.reader.isRunning():
             self.reader.terminate()
 
-    def stopWriter(self):
+    def stop_writer(self):
         if self.writer.isRunning():
             self.writer.terminate()
 
-    def printInfo(self, text):
+    def print_info(self, text):
         self.ui.logPlainTextEdit.appendPlainText(text)
         self.ui.logPlainTextEdit.moveCursor(QTextCursor.End)
 
-    def printError(self, text):
+    def print_error(self, text):
         self.ui.logPlainTextEdit.appendPlainText(text)
         self.ui.logPlainTextEdit.moveCursor(QTextCursor.End)
 
-    def printCmd(self, text):
+    def print_cmd(self, text):
         self.ui.logPlainTextEdit.appendPlainText(text + '\n')
         self.ui.logPlainTextEdit.moveCursor(QTextCursor.End)
 
-    def updateLog(self, text):
+    def update_log(self, text):
         self.ui.logPlainTextEdit.moveCursor(QTextCursor.End)
         self.ui.logPlainTextEdit.insertPlainText(text)
         self.ui.logPlainTextEdit.moveCursor(QTextCursor.End)
 
-    def processLineEntryCmd(self):
+    def process_LineEntryCmd(self):
         cmd = self.ui.cmdLineEdit.text()
-        self.printCmd(cmd+'\n')
+        self.print_cmd(cmd+'\n')
         self.writer.start(self.ser, cmd)
         self.ui.cmdLineEdit.clear()
 
-    def processSliderCmd(self):
+    def process_SliderCmd(self):
         sliderValue = ">LedBlinkTime=" + str(self.ui.P_HSlider.value()) + "<"
         print(sliderValue)
-        self.printCmd(sliderValue)
+        self.print_cmd(sliderValue)
         self.writer.start(self.ser, sliderValue)
 
-    def processCmd(self):
+    def process_Cmd(self):
         cmd = self.ui.cmdLineEdit.text()
-        self.printCmd(cmd)
+        self.print_cmd(cmd)
         self.writer.start(self.ser, cmd)
         self.ui.cmdLineEdit.clear()
 
