@@ -12,3 +12,5 @@ BotControllGUI
 ===================
 
 BotControllGUI ist eine grafische Oberfläche, um die Steuerung zu beeinflussen und Systemparameterzu beobachten
+
+weitere Infos unter: https://github.com/MrSnede/BalancingWheelRobot/wiki
