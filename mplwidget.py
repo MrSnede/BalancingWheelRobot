@@ -19,10 +19,10 @@ import matplotlib.animation as animation
 #import matplotlib.pyplot as plt
 
 
-class AnalogPlot:
+class PlotValueBuffer:
 
-    def __init__(self, strPort, maxLen):
-        self.ax = deque([0.0]*maxLen)
+    def __init__(self, maxLen):        # todo: maxlen wird mehrfach gesetzt
+        self.ax = deque([0.0]*maxLen)  # todo: besserer Name fuer ax + ay
         self.ay = deque([0.0]*maxLen)
         self.maxLen = maxLen
 
@@ -32,33 +32,22 @@ class AnalogPlot:
         else:
             buf.pop()
             buf.appendleft(val)
+        print(buf)
 
-    def add(self, data):
+    def add(self, datastring):
+        """wird aus BotControllGUI aufgreufen, sobald ein neues Messwertdopel
+        von der seriellen Konsole gelesen wurde"""
+        datastring = datastring.decode('utf-8').rstrip("\r\n")
+        data = [float(val) for val in datastring.split()]
         assert(len(data) == 2)
         self.addToBuf(self.ax, data[0])
         self.addToBuf(self.ay, data[1])
 
-    def update(self, frameNum, a0, a1):                          # update plot
-        try:
-            line = self.ser.readline()               # Binaryformat in base 2
-            print(line)
-            line = line.decode('utf-8').rstrip("\r\n")
-            print(line)
-            data = [float(val) for val in line.split()]  # [0:2]]
-            print(data)
-            if len(data) == 2:                                   # print data
-                self.add(data)
-                a0.set_data(range(self.maxLen), self.ax)
-                a1.set_data(range(self.maxLen), self.ay)
-            else:
-                print(data)
-                print('len data nix 2')
-        except KeyboardInterrupt:
-            print('exiting on Keyboard Interrupt')
-        except ValueError:
-            print('invalid Value   ... skipping')
-            print(line)
+    def update(self, frameNum, a0, a1):
+        a0.set_data(range(self.maxLen), self.ax)
+        a1.set_data(range(self.maxLen), self.ay)
         return a0
+        # Uebergabewerte und Rueckgabe sind Vorgabe von Matplotlib
 
 
 class MplCanvas(FigureCanvas):
@@ -74,14 +63,16 @@ class MplCanvas(FigureCanvas):
         self.ax.grid(b=True, which='minor', color='r', linewidth=0.5)
         self.ax.set_axisbelow(True)
         self.ax.set_ylim([-60, 60])
-        self.ax.set_xlim([0, 1000])
+        self.ax.set_xlim([0, 1000])       # todo: maxlen wird mehrfach gesetzt
         self.ax.axhline(y=0, linewidth=1.5, color='k')
 
         self.ax.set_ylabel('Neigung °', fontsize=14,
                            fontweight='bold', color='b')
-        self.line_Plot1, = self.ax.plot([], [], label='Neigung °', linewidth=1.0, linestyle="-")
-        self.line_Plot2, = self.ax.plot([], [], label='PID Antwort', linewidth=1.0, linestyle="-")
-        #self.anim = animation.FuncAnimation(self.fig, AnalogPlot.update,
+        self.line_Plot1, = self.ax.plot([], [], label='Neigung °',
+                                          linewidth=1.0, linestyle="-")
+        self.line_Plot2, = self.ax.plot([], [], label='PID Antwort',
+                                          linewidth=1.0, linestyle="-")
+        #self.anim = animation.FuncAnimation(self.fig, PlotValueBuffer.update,
                                      #fargs=(self.line_Plot1, self.line_Plot2),
                                      #interval=100)
                                      # Values < 30 will rise a Tkinter Error
@@ -104,6 +95,8 @@ class MplWidget(QtGui.QWidget):
     def __init__(self, parent=None):
         # initialization of Qt MainWindow widget
         QtGui.QWidget.__init__(self, parent)
+        # create a Buffer                 # todo: maxlen wird mehrfach gesetzt
+        self.valueBuffer = PlotValueBuffer(maxLen=1000)
         # set the canvas to the Matplotlib widget
         self.canvas = MplCanvas()
         # create a vertical box layout

@@ -55,7 +55,8 @@
 import sys, serial, os, time
 from PyQt4.QtGui import QApplication, QMainWindow, QTextCursor
 from PyQt4.QtCore import QObject, SIGNAL, QThread
-from mainWindow import Ui_MainWindow
+from mainWindow import *
+#from mainWindow import Ui_MainWindow, MplWidget
 #from mplwidget import MplWidget
 
 baudRates = ['9600',
@@ -129,6 +130,12 @@ class CMainWindow(QMainWindow):
 
         QObject.connect(self.reader,
                         SIGNAL("newData(QString)"), self.update_log)
+        # Schreibe String aus 2 Messwerten von der seriellen Schnittstelle
+        # in den Messwertspeichter (deque) dew mpl Widgets
+        QObject.connect(self.reader,
+                        SIGNAL("newData(QString)"),
+                        mainWindow.valueBuffer.add)
+
         QObject.connect(self.reader,
                         SIGNAL("error(QString)"), self.print_error)
         QObject.connect(self.writer,
