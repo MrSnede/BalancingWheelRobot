@@ -18,6 +18,7 @@ from matplotlib.figure import Figure
 import matplotlib.animation as animation
 #import matplotlib.pyplot as plt
 
+
 class AnalogPlot:
 
     def __init__(self, strPort, maxLen):
@@ -43,9 +44,9 @@ class AnalogPlot:
             print(line)
             line = line.decode('utf-8').rstrip("\r\n")
             print(line)
-            data = [float(val) for val in line.split()]#[0:2]]
+            data = [float(val) for val in line.split()]  # [0:2]]
             print(data)
-            if(len(data) == 2):                                   # print data
+            if len(data) == 2:                                   # print data
                 self.add(data)
                 a0.set_data(range(self.maxLen), self.ax)
                 a1.set_data(range(self.maxLen), self.ay)
@@ -59,6 +60,7 @@ class AnalogPlot:
             print(line)
         return a0
 
+
 class MplCanvas(FigureCanvas):
     """Class to represent the FigureCanvas widget"""
     def __init__(self):
@@ -67,26 +69,22 @@ class MplCanvas(FigureCanvas):
         self.fig.patch.set_alpha(0.0)
         self.fig.set_tight_layout(True)
 
-
         self.ax = self.fig.add_subplot(111)
         self.ax.grid(b=True, which='major', color='b', linewidth=1.5)
         self.ax.grid(b=True, which='minor', color='r', linewidth=0.5)
         self.ax.set_axisbelow(True)
-        self.ax.set_ylim([-60,60])
-        self.ax.set_xlim([0,1000])
+        self.ax.set_ylim([-60, 60])
+        self.ax.set_xlim([0, 1000])
         self.ax.axhline(y=0, linewidth=1.5, color='k')
 
         self.ax.set_ylabel('Neigung °', fontsize=14,
-                            fontweight='bold', color='b')
-        self.line_Plot1, = self.ax.plot([], [], label='Neigung °',
-                            linewidth=1.0, linestyle="-")
-        self.line_Plot2, = self.ax.plot([], [], label='PID Antwort',
-                            linewidth=1.0, linestyle="-")
+                           fontweight='bold', color='b')
+        self.line_Plot1, = self.ax.plot([], [], label='Neigung °', linewidth=1.0, linestyle="-")
+        self.line_Plot2, = self.ax.plot([], [], label='PID Antwort', linewidth=1.0, linestyle="-")
         #self.anim = animation.FuncAnimation(self.fig, AnalogPlot.update,
                                      #fargs=(self.line_Plot1, self.line_Plot2),
                                      #interval=100)
                                      # Values < 30 will rise a Tkinter Error
-
 
         # initialization of the canvas
         FigureCanvas.__init__(self, self.fig)
@@ -103,7 +101,7 @@ class MplCanvas(FigureCanvas):
 
 class MplWidget(QtGui.QWidget):
     """Widget defined in Qt Designer"""
-    def __init__(self, parent = None):
+    def __init__(self, parent=None):
         # initialization of Qt MainWindow widget
         QtGui.QWidget.__init__(self, parent)
         # set the canvas to the Matplotlib widget

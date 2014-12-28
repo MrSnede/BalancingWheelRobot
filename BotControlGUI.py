@@ -19,7 +19,7 @@
 # 59 Temple Place - Suite 330, Boston, MA  02111-1307, USA.
 
 
-#Links:
+# Links:
 # https://translate.google.com/translate?hl=de&sl=fr&tl=de&u=http%3A%2F%2F
 #               www.mon-club-elec.fr%2Fpmwiki_mon_club_elec%2F
 #               pmwiki.php%3Fn%3DMAIN.PYQTLAB
@@ -150,8 +150,8 @@ class CMainWindow(QMainWindow):
         self.disconnect()
         try:
             self.print_info("Connecting to %s with %s baud rate." %
-                          (self.get_selected_port(),
-                           self.get_selected_baud_rate()))
+                            (self.get_selected_port(),
+                             self.get_selected_baud_rate()))
             self.ser = serial.Serial(str(self.get_selected_port()),
                                      int(self.get_selected_baud_rate()),
                                      xonxoff=True)
@@ -214,7 +214,7 @@ class CMainWindow(QMainWindow):
 
     def process_LineEntryCmd(self):
         cmd = self.ui.cmdLineEdit.text()
-        self.print_cmd(cmd+'\n')
+        self.print_cmd(cmd + '\n')
         self.writer.start(self.ser, cmd)
         self.ui.cmdLineEdit.clear()
 
@@ -251,7 +251,7 @@ class CWriter(QThread):
         self.ser = ser
         #print(self.ser)
         print(cmd)
-        self.cmd = str(cmd)+"\r"
+        self.cmd = str(cmd) + "\r"
         QThread.start(self, priority)
         print(self.cmd)
 
@@ -267,6 +267,7 @@ class CWriter(QThread):
         print("aus")
         self.wait()
         QThread.terminate(self)
+
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)
