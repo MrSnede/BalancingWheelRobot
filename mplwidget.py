@@ -13,9 +13,12 @@ from matplotlib.backends.backend_qt4agg import FigureCanvasQTAgg as FigureCanvas
 #from matplotlib.backends.backend_qt4agg import NavigationToolbar2QT as NavigationToolbar
 
 # Matplotlib Figure object
+from collections import deque
 from matplotlib.figure import Figure
 import matplotlib.animation as animation
 #import matplotlib.pyplot as plt
+
+
 
 class MplCanvas(FigureCanvas):
     """Class to represent the FigureCanvas widget"""
@@ -40,9 +43,9 @@ class MplCanvas(FigureCanvas):
                             linewidth=1.0, linestyle="-")
         self.line_Plot2, = self.ax.plot([], [], label='PID Antwort',
                             linewidth=1.0, linestyle="-")
-        #self.anim = animation.FuncAnimation(self.fig, analogPlot.update,
+        #self.anim = animation.FuncAnimation(self.fig, AnalogPlot.update,
                                      #fargs=(self.line_Plot1, self.line_Plot2),
-                                     #interval=30)
+                                     #interval=100)
                                      # Values < 30 will rise a Tkinter Error
 
 

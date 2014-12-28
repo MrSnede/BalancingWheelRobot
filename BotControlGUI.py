@@ -108,12 +108,12 @@ class CMainWindow(QMainWindow):
 
         QMainWindow.__init__(*(self, ) + args)
         self.ui = Ui_MainWindow()
-        self.setup_ui()
+        self.setupUi()
         self.print_info("\n!! Nach dem Verbinden wird 9 Sekunden gewartet !!\n")
         self.print_info("Da Arduino Uno bei einem Verbindungsaufbau neu bootet")
 
-    def setup_ui(self):
-        self.ui.setup_ui(self)
+    def setupUi(self):
+        self.ui.setupUi(self)
         self.ui.baudRateComboBox.addItems(baudRates)
         self.refresh_ports()
         QObject.connect(self.ui.refreshPortsPushButton,
